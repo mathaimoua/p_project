@@ -1,7 +1,10 @@
-function ProductTable({ data }) {
+function ProductTable({ data, visibleColumns }) {
   if (data.length === 0) return <p>No data to display.</p>
 
-  const columns = Object.keys(data[0])
+  const allColumns = Object.keys(data[0])
+  const columns = visibleColumns && visibleColumns.length > 0
+    ? allColumns.filter((c) => visibleColumns.includes(c))
+    : allColumns
 
   return (
     <div style={{ overflowX: 'auto' }}>
