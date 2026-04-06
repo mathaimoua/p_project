@@ -1,23 +1,64 @@
-import React, { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { fetchProducts } from './features/productsSlice'
+import { fetchProducts, runCustomQuery } from './features/productsSlice'
 import ProductTable from './components/ProductTable'
+
+const DEFAULT_SQL = 'SELECT * FROM products'
 
 function App() {
   const dispatch = useDispatch()
   const { items, status, error } = useSelector((state) => state.products)
+  const [sql, setSql] = useState(DEFAULT_SQL)
 
   useEffect(() => {
     dispatch(fetchProducts())
   }, [dispatch])
 
-  if (status === 'loading') return <p>Loading...</p>
-  if (status === 'failed') return <p>Error: {error}</p>
+  function handleRun() {
+    const trimmed = sql.trim()
+    if (!trimmed) return
+    if (trimmed === DEFAULT_SQL) {
+      dispatch(fetchProducts())
+    } else {
+      dispatch(runCustomQuery(trimmed))
+    }
+  }
+
+  function handleKeyDown(e) {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') handleRun()
+  }
 
   return (
     <div style={{ padding: '2rem' }}>
       <h1>P_Project Supply Dashboard</h1>
-      <ProductTable data={items} />
+
+      <div style={{ marginBottom: '1rem' }}>
+        <textarea
+          value={sql}
+          onChange={(e) => setSql(e.target.value)}
+          onKeyDown={handleKeyDown}
+          rows={4}
+          style={{
+            width: '100%',
+            fontFamily: 'monospace',
+            fontSize: '0.9rem',
+            padding: '0.5rem',
+            boxSizing: 'border-box',
+            border: '1px solid #ccc',
+            borderRadius: '4px',
+          }}
+        />
+        <button
+          onClick={handleRun}
+          disabled={status === 'loading'}
+          style={{ marginTop: '0.5rem', padding: '0.4rem 1rem', cursor: 'pointer' }}
+        >
+          {status === 'loading' ? 'Running...' : 'Run (⌘↵)'}
+        </button>
+      </div>
+
+      {status === 'failed' && <p style={{ color: 'red' }}>Error: {error}</p>}
+      {status === 'succeeded' && <ProductTable data={items} />}
     </div>
   )
 }

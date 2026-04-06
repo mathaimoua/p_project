@@ -1,20 +1,14 @@
-import React from 'react'
-
-const COLUMNS = [
-  'sku', 'product_name', 'category', 'subcategory',
-  'unit_cost', 'sale_price', 'quantity_on_hand',
-  'reorder_threshold', 'unit_of_measure', 'last_restocked_date', 'is_active'
-]
-
 function ProductTable({ data }) {
   if (data.length === 0) return <p>No data to display.</p>
+
+  const columns = Object.keys(data[0])
 
   return (
     <div style={{ overflowX: 'auto' }}>
       <table style={{ borderCollapse: 'collapse', width: '100%', fontSize: '0.85rem' }}>
         <thead>
           <tr>
-            {COLUMNS.map((col) => (
+            {columns.map((col) => (
               <th
                 key={col}
                 style={{
@@ -31,9 +25,9 @@ function ProductTable({ data }) {
           </tr>
         </thead>
         <tbody>
-          {data.map((row) => (
-            <tr key={row.id}>
-              {COLUMNS.map((col) => (
+          {data.map((row, i) => (
+            <tr key={i}>
+              {columns.map((col) => (
                 <td
                   key={col}
                   style={{
@@ -42,7 +36,7 @@ function ProductTable({ data }) {
                     whiteSpace: 'nowrap'
                   }}
                 >
-                  {col === 'is_active' ? (row[col] ? 'Yes' : 'No') : row[col]}
+                  {typeof row[col] === 'boolean' ? (row[col] ? 'Yes' : 'No') : row[col]}
                 </td>
               ))}
             </tr>
