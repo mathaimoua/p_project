@@ -7,7 +7,7 @@ function ProductTable({ data, visibleColumns }) {
     : allColumns
 
   return (
-    <div style={{ overflowX: 'auto' }}>
+    <div style={{ overflow: 'auto', maxHeight: 'calc(100vh - 320px)', border: '1px solid #ccc', borderRadius: '4px' }}>
       <table style={{ borderCollapse: 'collapse', width: '100%', fontSize: '0.85rem' }}>
         <thead>
           <tr>
@@ -19,7 +19,10 @@ function ProductTable({ data, visibleColumns }) {
                   padding: '0.5rem',
                   backgroundColor: '#f4f4f4',
                   textAlign: 'left',
-                  whiteSpace: 'nowrap'
+                  whiteSpace: 'nowrap',
+                  position: 'sticky',
+                  top: 0,
+                  zIndex: 1,
                 }}
               >
                 {col.replace(/_/g, ' ').toUpperCase()}
