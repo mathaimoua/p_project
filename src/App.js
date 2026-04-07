@@ -3,6 +3,8 @@ import { useDispatch, useSelector } from 'react-redux'
 import { fetchProducts, runCustomQuery } from './features/productsSlice'
 import ProductTable from './components/ProductTable'
 import DataControls from './components/DataControls'
+import Papa from 'papaparse'
+import * as XLSX from 'xlsx'
 
 const DEFAULT_SQL = 'SELECT * FROM products'
 
@@ -28,6 +30,39 @@ function App() {
 
   function handleKeyDown(e) {
     if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') handleRun()
+  }
+
+  function getTimestamp() {
+    return new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19)
+  }
+
+  function getExportRows() {
+    const { visibleColumns } = viewConfig
+    const allColumns = transformedData.length > 0 ? Object.keys(transformedData[0]) : []
+    const cols = visibleColumns && visibleColumns.length > 0
+      ? allColumns.filter((c) => visibleColumns.includes(c))
+      : allColumns
+    return transformedData.map((row) =>
+      Object.fromEntries(cols.map((c) => [c, row[c]]))
+    )
+  }
+
+  function exportCSV() {
+    const csv = Papa.unparse(getExportRows())
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `products_${getTimestamp()}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  function exportXLSX() {
+    const ws = XLSX.utils.json_to_sheet(getExportRows())
+    const wb = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(wb, ws, 'Data')
+    XLSX.writeFile(wb, `products_${getTimestamp()}.xlsx`)
   }
 
   const columns = items.length > 0 ? Object.keys(items[0]) : []
@@ -74,13 +109,29 @@ function App() {
             borderRadius: '4px',
           }}
         />
-        <button
-          onClick={handleRun}
-          disabled={status === 'loading'}
-          style={{ marginTop: '0.5rem', padding: '0.4rem 1rem', cursor: 'pointer' }}
-        >
-          {status === 'loading' ? 'Running...' : 'Run (⌘↵)'}
-        </button>
+        <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
+          <button
+            onClick={handleRun}
+            disabled={status === 'loading'}
+            style={{ padding: '0.4rem 1rem', cursor: 'pointer' }}
+          >
+            {status === 'loading' ? 'Running...' : 'Run (⌘↵)'}
+          </button>
+          <button
+            onClick={exportCSV}
+            disabled={transformedData.length === 0}
+            style={{ padding: '0.4rem 1rem', cursor: 'pointer' }}
+          >
+            Export CSV
+          </button>
+          <button
+            onClick={exportXLSX}
+            disabled={transformedData.length === 0}
+            style={{ padding: '0.4rem 1rem', cursor: 'pointer' }}
+          >
+            Export XLSX
+          </button>
+        </div>
       </div>
 
       {status === 'failed' && <p style={{ color: 'red' }}>Error: {error}</p>}
