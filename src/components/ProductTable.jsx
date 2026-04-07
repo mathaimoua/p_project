@@ -57,9 +57,13 @@ function ProductTable({ data, visibleColumns }) {
                     whiteSpace: 'nowrap'
                   }}
                 >
-                  {/* Boolean values (true/false) are displayed as Yes/No for readability
-                      All other values are rendered as-is */}
-                  {typeof row[col] === 'boolean' ? (row[col] ? 'Yes' : 'No') : row[col]}
+                  {/* Boolean values display as Yes/No, currency columns are fixed to 2 decimal places,
+                      all other values are rendered as-is */}
+                  {typeof row[col] === 'boolean'
+                    ? (row[col] ? 'Yes' : 'No')
+                    : (col === 'unit_cost' || col === 'sale_price') && row[col] != null
+                      ? Number(row[col]).toFixed(2)
+                      : row[col]}
                 </td>
               ))}
             </tr>
