@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { fetchProducts, runCustomQuery } from './features/productsSlice'
+import { fetchProducts, runCustomQuery } from './features/sqlSlice'
 import ProductTable from './components/ProductTable'
 import DataControls from './components/DataControls'
 import Papa from 'papaparse'
@@ -14,18 +14,18 @@ function App() {
   const dispatch = useDispatch()
 
   // Pull the current data, loading status, and any error out of the Redux store
-  const { items, status, error } = useSelector((state) => state.products)
+  const { results: items, status, error } = useSelector((state) => state.sql)
 
   // The SQL text currently in the editor box
   const [sql, setSql] = useState(DEFAULT_SQL)
-
+  
   // Tracks the current state of the view controls (visible columns, sort, search)
   // Updated whenever the user changes anything in DataControls
   const [viewConfig, setViewConfig] = useState({ visibleColumns: [], sortBy: '', sortDir: 'asc', search: '' })
-  const [sqlHistory, setsqlHistory] = useState(["SELECT * FROM products"])
+  const [sqlHistory, setsqlHistory] = useState(["SELECT * FROM products", "SELECT * FROM customers", "SELECT * FROM orders"])
   // On first load, automatically run the default query to populate the table
   useEffect(() => {
-    dispatch(fetchProducts())
+  dispatch(fetchProducts())
   }, [dispatch])
 
   // Called when the user clicks Run or presses Cmd/Ctrl+Enter
@@ -35,17 +35,23 @@ function App() {
     const trimmed = sql.trim()
     if (!trimmed) return
     if (trimmed === DEFAULT_SQL) {
-      dispatch(fetchProducts())
-    } else {
-    dispatch(runCustomQuery(trimmed)).then((result) => {
-      if (result.meta.requestStatus === 'fulfilled') {
-        if (!sqlHistory.includes(trimmed)) {
-          setsqlHistory([...sqlHistory, trimmed])
+      dispatch(fetchProducts()).then((result) => {
+        if (result.meta.requestStatus === 'fulfilled') {
+          if (!sqlHistory.includes(trimmed)) {
+            setsqlHistory([...sqlHistory, trimmed])
+          }
         }
-      }
-    })
+      })
+    } else {
+      dispatch(runCustomQuery(trimmed)).then((result) => {
+        if (result.meta.requestStatus === 'fulfilled') {
+          if (!sqlHistory.includes(trimmed)) {
+            setsqlHistory([...sqlHistory, trimmed])
+          }
+        }
+      })
+    }
   }
-}
 
   // Allows the user to submit the query with Cmd+Enter (Mac) or Ctrl+Enter (Windows)
   function handleKeyDown(e) {
@@ -105,12 +111,11 @@ function App() {
 
   // Derive the list of column names from the first row of raw data returned by the query
   // This updates automatically whenever a new query is run
-  const columns = items.length > 0 ? Object.keys(items[0]) : []
-
+  const columns = (items ?? []).length > 0 ? Object.keys(items[0]) : []
   // Apply the view controls (search filter and sort) to the raw data from Redux
   // This runs whenever the data or the view config changes, but avoids unnecessary recalculation
   const transformedData = useMemo(() => {
-    let rows = [...items]
+    let rows = [...(items ?? [])]
 
     // If the user has typed in the search box, keep only rows where any cell contains the search term
     if (viewConfig.search) {

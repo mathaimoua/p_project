@@ -1,9 +1,9 @@
 import { configureStore } from '@reduxjs/toolkit'
-import productsReducer from '../features/productsSlice'
+import sqlReducer from '../features/sqlSlice'
 
 const store = configureStore({
   reducer: {
-    products: productsReducer,
+    sql: sqlReducer,
   },
 })
 
