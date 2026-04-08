@@ -22,7 +22,7 @@ function App() {
   // Tracks the current state of the view controls (visible columns, sort, search)
   // Updated whenever the user changes anything in DataControls
   const [viewConfig, setViewConfig] = useState({ visibleColumns: [], sortBy: '', sortDir: 'asc', search: '' })
-
+  const [sqlHistory, setsqlHistory] = useState(["SELECT * FROM products"])
   // On first load, automatically run the default query to populate the table
   useEffect(() => {
     dispatch(fetchProducts())
@@ -37,13 +37,23 @@ function App() {
     if (trimmed === DEFAULT_SQL) {
       dispatch(fetchProducts())
     } else {
-      dispatch(runCustomQuery(trimmed))
-    }
+    dispatch(runCustomQuery(trimmed)).then((result) => {
+      if (result.meta.requestStatus === 'fulfilled') {
+        if (!sqlHistory.includes(trimmed)) {
+          setsqlHistory([...sqlHistory, trimmed])
+        }
+      }
+    })
   }
+}
 
   // Allows the user to submit the query with Cmd+Enter (Mac) or Ctrl+Enter (Windows)
   function handleKeyDown(e) {
     if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') handleRun()
+  }
+
+  function sqlChange(newSQL){
+    setSql(newSQL)
   }
 
   // Generates a timestamp string used in export filenames, e.g. "2026-04-06T14-30-00"
@@ -123,10 +133,15 @@ function App() {
 
     return rows
   }, [items, viewConfig])
-
   return (
     <div style={{ padding: '2rem' }}>
       <h1>P_Project Supply Dashboard</h1>
+      <select onChange={(e) => sqlChange(e.target.value)}>
+        <option value="">-- History --</option>
+        {sqlHistory.map((option) => (
+          <option key={option} value={option}>{option}</option>
+          ))}
+      </select>
 
       <div style={{ marginBottom: '1rem' }}>
         {/* SQL editor — the user types their query here */}
