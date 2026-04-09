@@ -13,7 +13,7 @@ You may also see any lint errors in the console.
 ### Setup
 Be sure to create a database in supabase and have an ENV file similar to below:
 
-REACT_APP_SUPABASE_URL=https://YOURAPPIDHERE.supabase.co
+REACT_APP_SUPABASE_URL=https://YOURPROJECTIDHERE.supabase.co
 REACT_APP_SUPABASE_ANON_KEY=YOURSUPABASEANONKEYHERE
 
 
