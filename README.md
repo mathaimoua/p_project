@@ -4,12 +4,15 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 ### Setup
 
-Install Node.js (v18 or higher recommended)
+#### Install Node.js (v18 or higher recommended)
 
-Be sure to create a database in supabase and have an ENV file similar to below:
+#### Be sure to create a database in supabase and have an ENV file similar to below:
 
 REACT_APP_SUPABASE_URL=https://YOURPROJECTIDHERE.supabase.co
 REACT_APP_SUPABASE_ANON_KEY=YOURSUPABASEANONKEYHERE
+
+
+#### SQL Table setup for all 3 tables as well as allowing custom statements to be ran from app is found in CreateTables.md
 
 ### `npm start`
 
