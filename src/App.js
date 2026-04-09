@@ -141,7 +141,7 @@ function App() {
   return (
     <div style={{ padding: '2rem' }}>
       <h1>P_Project Supply Dashboard</h1>
-      <select onChange={(e) => sqlChange(e.target.value)}>
+      <select onChange={(e) => sqlChange(e.target.value)} style={{ maxWidth: '50%', marginBottom: '10px'}}>
         <option value="">-- History --</option>
         {sqlHistory.map((option) => (
           <option key={option} value={option}>{option}</option>
