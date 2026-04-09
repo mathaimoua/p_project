@@ -22,7 +22,13 @@ function App() {
   // Tracks the current state of the view controls (visible columns, sort, search)
   // Updated whenever the user changes anything in DataControls
   const [viewConfig, setViewConfig] = useState({ visibleColumns: [], sortBy: '', sortDir: 'asc', search: '' })
-  const [sqlHistory, setsqlHistory] = useState(["SELECT * FROM products", "SELECT * FROM customers", "SELECT * FROM orders"])
+  const [sqlHistory, setsqlHistory] = useState([
+    { label: 'All Products', value: 'SELECT * FROM products' }, 
+    { label: 'All Customers', value: 'SELECT * FROM customers'},
+    { label: 'All Orders', value: 'SELECT * FROM orders'},
+    { label: 'Top 3 Spenders', value: 'with total_spent as( select c.practice_name, sum(o.quantity*o.unit_price) as total_spent from customers c left join orders o on c.id = o.customer_id group by c.practice_name), ranked as (select practice_name, total_spent, rank() over (order by total_spent desc) as rank from total_spent) select * from ranked where rank <= 3'},
+    { label: 'Top 5 Buyers from Each Discipline', value: 'select product_name, category, sale_price, row_num as rank_in_category from (select *, row_number() over (partition by category order by sale_price desc) as row_num from products) as k where row_num <= 5'},
+  ])
   // On first load, automatically run the default query to populate the table
   useEffect(() => {
   dispatch(fetchProducts())
@@ -45,8 +51,8 @@ function App() {
     } else {
       dispatch(runCustomQuery(trimmed)).then((result) => {
         if (result.meta.requestStatus === 'fulfilled') {
-          if (!sqlHistory.includes(trimmed)) {
-            setsqlHistory([...sqlHistory, trimmed])
+          if (!sqlHistory.some((item) => item.value === trimmed)) {
+            setsqlHistory([...sqlHistory, { label: trimmed, value: trimmed }])
           }
         }
       })
@@ -141,11 +147,11 @@ function App() {
   return (
     <div style={{ padding: '2rem' }}>
       <h1>P_Project Supply Dashboard</h1>
-      <select onChange={(e) => sqlChange(e.target.value)} style={{ maxWidth: '50%', marginBottom: '10px'}}>
+      <select onChange={(e) => sqlChange(e.target.value)}>
         <option value="">-- History --</option>
         {sqlHistory.map((option) => (
-          <option key={option} value={option}>{option}</option>
-          ))}
+          <option key={option.value} value={option.value}>{option.label}</option>
+        ))}
       </select>
 
       <div style={{ marginBottom: '1rem' }}>
