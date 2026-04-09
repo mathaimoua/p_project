@@ -15,4 +15,10 @@ The page will reload when you make changes.\
 You may also see any lint errors in the console.
 
 ### Purpose
-This app pulls data from an API, stores it in a global state and prepares it for transformation. Once the user is happy with transformations, the report/data can be exported.
+This app pulls data from an API, stores it in a global state and prepares it for transformation. Once the user is content with the applied transformations, the report/data can be exported.
+
+### Database
+The app is tied to tables in supabase with an API key. The tables are protected with RLS with read-only access so sql injection is not possible through the app.
+
+### Features
+The app has built in defaults for SQL statements to be executed. The select element will also track the history of successful statements. Users have the ability to export to xlsx and csv. 
