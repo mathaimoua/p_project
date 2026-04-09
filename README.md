@@ -11,14 +11,10 @@ The page will reload when you make changes.\
 You may also see any lint errors in the console.
 
 ### Setup
-You will need a database in supabase with the url and an anon key. Make sure lib>supabaseClient.js is set up like below and use an env file:
+Be sure to create a database in supabase and have an ENV file similar to below:
 
-import { createClient } from '@supabase/supabase-js'
-
-const supabaseUrl = process.env.REACT_APP_SUPABASE_URL
-const supabaseKey = process.env.REACT_APP_SUPABASE_ANON_KEY
-
-export const supabase = createClient(supabaseUrl, supabaseKey)
+REACT_APP_SUPABASE_URL=https://YOURAPPIDHERE.supabase.co
+REACT_APP_SUPABASE_ANON_KEY=YOURSUPABASEANONKEYHERE
 
 
 ### Purpose
